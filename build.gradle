@@ -24,7 +24,7 @@ ext {
     baseGroup="org.ngengine"
 
     ngePlatformVersionSnapshot = "0.1.0-SNAPSHOT"
-    ngePlatformVersion = "0.0.5"
+    ngePlatformVersion = "0.1.0"
 
     bech32VersionSnapshot = "1.0.0-SNAPSHOT"
     bech32Version = "1.0.2"
