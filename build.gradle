@@ -185,7 +185,7 @@ afterEvaluate {
     }
 
     tasks.register("generateBuildDate") {
-        def outputDir = file("${buildDir}/generated-resources/build-date/${name}")
+        def outputDir = file("${buildDir}/generated-resources/build-date/${project.name}")
         def outputFile = file("${outputDir}/build.date")
 
         outputs.file(outputFile)
