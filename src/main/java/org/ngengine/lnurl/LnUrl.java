@@ -229,9 +229,11 @@ public class LnUrl {
      * @throws LnUrlException
      */
     public <T extends LnUrlService> AsyncTask<T> getService(Duration timeout) throws LnUrlException {
+        String url = toURI().toString();
+        logger.finer("Fetching LNURL service from: " + url+ " with timeout: " + timeout);
         return NGEPlatform
             .get()
-            .httpGet(toURI().toString(), timeout, null)
+            .httpGet(url, timeout, null)
             .then(res -> {
                 try {
                     Map<String, Object> data = NGEPlatform.get().fromJSON(res, Map.class);
