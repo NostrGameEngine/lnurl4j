@@ -230,7 +230,7 @@ public class LnUrl {
      */
     public <T extends LnUrlService> AsyncTask<T> getService(Duration timeout) throws LnUrlException {
         String url = toURI().toString();
-        logger.finer("Fetching LNURL service from: " + url+ " with timeout: " + timeout);
+        logger.finer("Fetching LNURL service from: " + url + " with timeout: " + timeout);
         return NGEPlatform
             .get()
             .httpGet(url, timeout, null)
