@@ -42,7 +42,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
 import org.ngengine.platform.AsyncTask;
 import org.ngengine.platform.NGEPlatform;
 import org.ngengine.platform.NGEUtils;
@@ -75,10 +74,7 @@ public class LnUrlPay implements LnUrlService {
 
         @Override
         public String toString() {
-            return "Metadata{" +
-                "type='" + type + '\'' +
-                ", value=" + value +
-                '}';    
+            return "Metadata{" + "type='" + type + '\'' + ", value=" + value + '}';
         }
 
         @Override
@@ -86,12 +82,12 @@ public class LnUrlPay implements LnUrlService {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             Metadata metadata = (Metadata) o;
-            return type.equals(metadata.type) && value.equals(metadata.value);  
+            return type.equals(metadata.type) && value.equals(metadata.value);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(type, value);   
+            return Objects.hash(type, value);
         }
     }
 

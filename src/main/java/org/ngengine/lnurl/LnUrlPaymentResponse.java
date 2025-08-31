@@ -54,6 +54,7 @@ import org.ngengine.platform.NGEUtils;
 public class LnUrlPaymentResponse {
 
     public static class SuccessActionProcessor {
+
         private final Function<Map<String, Object>, Boolean> isAssignableTo;
         private final BiFunction<LnUrlPay, Map<String, Object>, LnUrlSuccessAction> constructor;
 
@@ -75,7 +76,7 @@ public class LnUrlPaymentResponse {
 
         @Override
         public int hashCode() {
-            return Objects.hash(isAssignableTo, constructor);   
+            return Objects.hash(isAssignableTo, constructor);
         }
 
         @Override
@@ -83,11 +84,8 @@ public class LnUrlPaymentResponse {
             if (this == obj) return true;
             if (obj == null || getClass() != obj.getClass()) return false;
             SuccessActionProcessor other = (SuccessActionProcessor) obj;
-            return Objects.equals(isAssignableTo, other.isAssignableTo) && Objects.equals(constructor,
-                    other.constructor);
+            return Objects.equals(isAssignableTo, other.isAssignableTo) && Objects.equals(constructor, other.constructor);
         }
-
-
     }
 
     private static final List<SuccessActionProcessor> successActionsProcessors = new ArrayList<>();
