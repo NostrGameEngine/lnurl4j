@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import org.ngengine.lnurl.successAction.LnUrlAESSuccessAction;
@@ -52,10 +53,42 @@ import org.ngengine.platform.NGEUtils;
 
 public class LnUrlPaymentResponse {
 
-    public static record SuccessActionProcessor(
-        Function<Map<String, Object>, Boolean> isAssignableTo,
-        BiFunction<LnUrlPay, Map<String, Object>, LnUrlSuccessAction> constructor
-    ) {}
+    public static class SuccessActionProcessor {
+        private final Function<Map<String, Object>, Boolean> isAssignableTo;
+        private final BiFunction<LnUrlPay, Map<String, Object>, LnUrlSuccessAction> constructor;
+
+        public SuccessActionProcessor(
+            Function<Map<String, Object>, Boolean> isAssignableTo,
+            BiFunction<LnUrlPay, Map<String, Object>, LnUrlSuccessAction> constructor
+        ) {
+            this.isAssignableTo = isAssignableTo;
+            this.constructor = constructor;
+        }
+
+        public boolean isAssignableTo(Map<String, Object> data) {
+            return isAssignableTo.apply(data);
+        }
+
+        public LnUrlSuccessAction construct(LnUrlPay req, Map<String, Object> data) {
+            return constructor.apply(req, data);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(isAssignableTo, constructor);   
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) return true;
+            if (obj == null || getClass() != obj.getClass()) return false;
+            SuccessActionProcessor other = (SuccessActionProcessor) obj;
+            return Objects.equals(isAssignableTo, other.isAssignableTo) && Objects.equals(constructor,
+                    other.constructor);
+        }
+
+
+    }
 
     private static final List<SuccessActionProcessor> successActionsProcessors = new ArrayList<>();
 

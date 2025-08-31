@@ -65,9 +65,6 @@ repositories {
     maven {
         url = uri("https://central.sonatype.com/repository/maven-snapshots")
     }
-    maven { // required by NGEPlatform
-        url = "https://maven.rblb.it/NostrGameEngine/libdatachannel-java"
-    }
 }
 
 dependencies {
@@ -80,9 +77,8 @@ dependencies {
 }
 
 java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
     withJavadocJar()
     withSourcesJar()
 }

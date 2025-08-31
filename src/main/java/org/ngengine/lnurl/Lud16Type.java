@@ -32,11 +32,29 @@
 package org.ngengine.lnurl;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Lud16 url types with their prefixes and tags.
  */
-public record Lud16Type(String prefix, String tag) {
+public class Lud16Type {
+
+    private final String prefix;
+    private final String tag;
+
+    public Lud16Type(String prefix, String tag) {
+        this.prefix = prefix;
+        this.tag = tag;
+    }
+
+    public String prefix() {
+        return prefix;
+    }
+
+    public String tag() {
+        return tag;
+    }
+
     public boolean isAssignableTo(String lnurl) {
         return lnurl.toLowerCase().trim().startsWith(prefix + "://");
     }
@@ -63,5 +81,23 @@ public record Lud16Type(String prefix, String tag) {
     public static Lud16Type getLud16(String lnurl) {
         if (lnurl == null || lnurl.isEmpty()) return null;
         return LUD_16_TYPES.stream().filter(prefix -> prefix.isAssignableTo(lnurl)).findFirst().orElse(null);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Lud16Type lud16Type = (Lud16Type) o;
+        return Objects.equals(prefix, lud16Type.prefix) && Objects.equals(tag, lud16Type.tag);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(prefix, tag);
+    }
+
+    @Override
+    public String toString() {
+        return "Lud16Type[" + "prefix='" + prefix + '\'' + ", tag='" + tag + '\'' + ']';
     }
 }

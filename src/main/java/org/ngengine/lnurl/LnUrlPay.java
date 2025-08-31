@@ -41,6 +41,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+
 import org.ngengine.platform.AsyncTask;
 import org.ngengine.platform.NGEPlatform;
 import org.ngengine.platform.NGEUtils;
@@ -53,7 +55,45 @@ public class LnUrlPay implements LnUrlService {
 
     public static final int MAX_METADATA_SIZE = 1024 * 1024; // 1 MB
 
-    public static record Metadata(String type, Object value) {}
+    public static class Metadata {
+
+        private final String type;
+        private final Object value;
+
+        public Metadata(String type, Object value) {
+            this.type = type;
+            this.value = value;
+        }
+
+        public String type() {
+            return type;
+        }
+
+        public Object value() {
+            return value;
+        }
+
+        @Override
+        public String toString() {
+            return "Metadata{" +
+                "type='" + type + '\'' +
+                ", value=" + value +
+                '}';    
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Metadata metadata = (Metadata) o;
+            return type.equals(metadata.type) && value.equals(metadata.value);  
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(type, value);   
+        }
+    }
 
     private static final List<String> STR_METADATA_TYPES = List.of(
         "text/plain",
@@ -112,7 +152,8 @@ public class LnUrlPay implements LnUrlService {
             if (o.getClass().isArray()) {
                 o = List.of((Object[]) o);
             }
-            if (o instanceof List lo && lo.size() == 2) {
+            if (o instanceof List && ((List) o).size() == 2) {
+                List<?> lo = (List<?>) o;
                 String type = NGEUtils.safeString(lo.get(0));
                 Object value = lo.get(1);
                 if (STR_METADATA_TYPES.contains(type)) {
