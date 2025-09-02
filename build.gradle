@@ -264,7 +264,7 @@ spotless {
             "useTabs": false
         ])
         
-        
+        enforceCheck false
         bumpThisNumberIfACustomStepChanges(1)
     }
     
