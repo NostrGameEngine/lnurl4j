@@ -68,6 +68,34 @@ LnUrl.registerServiceFactory((data/*request data map*/) -> {
 
 ## Usage
 
+Add the dependency to your project [from maven central](https://central.sonatype.com/artifact/org.ngengine/lnurl4j):
+
+```gradle
+dependencies {
+    // ...
+    implementation 'org.ngengine:lnurl4j:<version>'
+    // ...
+}
+```
+
+Add the right [nge-platform](https://github.com/NostrGameEngine/nge-platforms) for your target platform [from maven central](https://central.sonatype.com/search?q=nge-platform&namespace=org.ngengine).
+For example, for desktop:
+
+```gradle
+dependencies {
+    // ...
+    implementation 'org.ngengine:nge-platform-jvm:<version>' // note: this requires java 21+
+    // ...
+}
+```
+
+> [!NOTE]  
+> This library can be included in projects targeting java 11 or higher, but it requires java 21+ if you use `nge-platform-jvm` and to run tests (./gradlew test).
+> This is due to `nge-platform-jvm` using some java 21+ features, such as virtual threads, async http client, etc.. to improve performance.
+
+
+Use the library:
+
 ```java
 LnUrl lnurl = new LnUrl(/*lnurl or lud16 url*/);
 // or
@@ -76,3 +104,4 @@ LnUrl  lnAddress = new LnAddress(/*ln address*/);
 LnUrlPay service = (LnUrlPay)lnurl.getService(); /* if it is a lnurlp */
 // service.fetchInvoice(....)
 ```
+
