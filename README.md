@@ -51,6 +51,7 @@ This includes basically only the luds related to the payRequest service and the 
 - [ ] lud-19
 - [ ] lud-20
 - [x] lud-21
+- [x] nip-57 extension
 
 
 however the library is designed to be extensible and you can easily write an implementation for the missing services that you can then register to the library, using:
@@ -105,3 +106,4 @@ LnUrlPay service = (LnUrlPay)lnurl.getService(); /* if it is a lnurlp */
 // service.fetchInvoice(....)
 ```
 
+ 

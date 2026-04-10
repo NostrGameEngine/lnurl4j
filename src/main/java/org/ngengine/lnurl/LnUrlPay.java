@@ -107,6 +107,8 @@ public class LnUrlPay implements LnUrlService {
     private final List<Metadata> metadata = new ArrayList<>();
     private final URI callback;
     private final LnUrlPayerData payerData;
+    private final String nostrPubkey;
+    private final boolean allowNostr;
 
     protected LnUrlPay(
         long maxSendable,
@@ -114,7 +116,9 @@ public class LnUrlPay implements LnUrlService {
         URI callback,
         int commentAllowed,
         Collection<Metadata> metadata,
-        LnUrlPayerData payerData
+        LnUrlPayerData payerData,
+        String nostrPubkey,
+        boolean allowNostr
     ) {
         if (maxSendable < 1 || minSendable < 1 || minSendable > maxSendable) {
             throw new IllegalArgumentException("Invalid sendable range: " + minSendable + " - " + maxSendable);
@@ -125,6 +129,19 @@ public class LnUrlPay implements LnUrlService {
         this.commentAllowed = commentAllowed;
         this.metadata.addAll(metadata);
         this.payerData = payerData;
+        this.nostrPubkey = nostrPubkey;
+        this.allowNostr = allowNostr;
+    }
+
+    protected LnUrlPay(
+        long maxSendable,
+        long minSendable,
+        URI callback,
+        int commentAllowed,
+        Collection<Metadata> metadata,
+        LnUrlPayerData payerData
+    ) {
+        this(maxSendable, minSendable, callback, commentAllowed, metadata, payerData, null, false);
     }
 
     protected LnUrlPay(Map<String, Object> data) {
@@ -137,6 +154,9 @@ public class LnUrlPay implements LnUrlService {
             throw new IllegalArgumentException("Invalid sendable range: " + minSendable + " - " + maxSendable);
         }
         this.callback = NGEUtils.safeURI(data.get("callback"));
+
+        this.allowNostr = NGEUtils.safeBool(data.get("allowNostr"));
+        this.nostrPubkey = NGEUtils.safeString(data.get("nostrPubkey"));
 
         String metaStr = NGEUtils.safeString(data.get("metadata"));
         if (metaStr.isEmpty() || metaStr.length() > MAX_METADATA_SIZE) {
@@ -196,11 +216,28 @@ public class LnUrlPay implements LnUrlService {
         return metadata;
     }
 
+    public boolean isNostrAllowed() {
+        return allowNostr;
+    }
+
+    public String getNostrPubkey() {
+        return nostrPubkey;
+    }
+
     public URI getCallback() {
         return callback;
     }
 
     public URI getCallback(long amount, @Nullable String comment, @Nullable LnUrlPayerData payerData) {
+        return getCallback(amount, comment, payerData, null);
+    }
+
+    public URI getCallback(
+        long amount,
+        @Nullable String comment,
+        @Nullable LnUrlPayerData payerData,
+        @Nullable String nostrZapRequest
+    ) {
         if (!canSend(amount)) {
             throw new IllegalArgumentException(
                 "Amount " + amount + " is not within the allowed range: " + minSendable + " - " + maxSendable
@@ -224,6 +261,9 @@ public class LnUrlPay implements LnUrlService {
         if (payerData != null) {
             build.append("&payerdata=").append(URLEncoder.encode(NGEPlatform.get().toJSON(payerData), StandardCharsets.UTF_8));
         }
+        if (nostrZapRequest != null && !nostrZapRequest.isEmpty()) {
+            build.append("&nostr=").append(URLEncoder.encode(nostrZapRequest, StandardCharsets.UTF_8));
+        }
         return NGEUtils.safeURI(build.toString());
     }
 
@@ -232,7 +272,16 @@ public class LnUrlPay implements LnUrlService {
         @Nullable String comment,
         @Nullable LnUrlPayerData payerData
     ) throws Exception {
-        return fetchInvoice(amount, comment, payerData, LnUrl.DEFAULT_TIMEOUT, null);
+        return fetchInvoice(amount, comment, payerData, LnUrl.DEFAULT_TIMEOUT, null, null);
+    }
+
+    public AsyncTask<LnUrlPaymentResponse> fetchInvoice(
+        long amount,
+        @Nullable String comment,
+        @Nullable LnUrlPayerData payerData,
+        @Nullable String nostrZapRequest
+    ) throws Exception {
+        return fetchInvoice(amount, comment, payerData, LnUrl.DEFAULT_TIMEOUT, null, nostrZapRequest);
     }
 
     public AsyncTask<LnUrlPaymentResponse> fetchInvoice(
@@ -242,7 +291,18 @@ public class LnUrlPay implements LnUrlService {
         @Nullable Duration timeout,
         @Nullable Map<String, String> headers
     ) throws Exception {
-        URI callback = getCallback(amount, comment, payerData);
+        return fetchInvoice(amount, comment, payerData, timeout, headers, null);
+    }
+
+    public AsyncTask<LnUrlPaymentResponse> fetchInvoice(
+        long amount,
+        @Nullable String comment,
+        @Nullable LnUrlPayerData payerData,
+        @Nullable Duration timeout,
+        @Nullable Map<String, String> headers,
+        @Nullable String nostrZapRequest
+    ) throws Exception {
+        URI callback = getCallback(amount, comment, payerData, nostrZapRequest);
         return NGEPlatform
             .get()
             .httpGet(callback.toString(), timeout, headers)
@@ -272,6 +332,12 @@ public class LnUrlPay implements LnUrlService {
         map.put("tag", "payRequest");
         map.put("maxSendable", maxSendable);
         map.put("minSendable", minSendable);
+        if (allowNostr || nostrPubkey != null) {
+            map.put("allowNostr", allowNostr);
+        }
+        if (nostrPubkey != null) {
+            map.put("nostrPubkey", nostrPubkey);
+        }
         map.put("callback", callback.toString());
         if (commentAllowed > 0) {
             map.put("commentAllowed", commentAllowed);
