@@ -155,7 +155,10 @@ public class LnUrlPay implements LnUrlService {
         }
         this.callback = NGEUtils.safeURI(data.get("callback"));
 
-        this.allowNostr = NGEUtils.safeBool(data.get("allowNostr"));
+        // The standard field takes precedence, including an explicit refusal.
+        this.allowNostr = Boolean.TRUE.equals(
+            data.containsKey("allowsNostr") ? data.get("allowsNostr") : data.get("allowNostr")
+        );
         this.nostrPubkey = NGEUtils.safeString(data.get("nostrPubkey"));
 
         String metaStr = NGEUtils.safeString(data.get("metadata"));
@@ -263,6 +266,24 @@ public class LnUrlPay implements LnUrlService {
         }
         if (nostrZapRequest != null && !nostrZapRequest.isEmpty()) {
             build.append("&nostr=").append(URLEncoder.encode(nostrZapRequest, StandardCharsets.UTF_8));
+            // NIP-57 also sends the recipient LNURL as a separate callback parameter.
+            Map<String, Object> request = NGEPlatform.get().fromJSON(nostrZapRequest, Map.class);
+            Object tags = request.get("tags");
+            if (tags instanceof List) {
+                for (Object tag : (List<?>) tags) {
+                    if (tag instanceof Object[]) {
+                        tag = List.of((Object[]) tag);
+                    }
+                    if (!(tag instanceof List)) continue;
+                    List<?> values = (List<?>) tag;
+                    if (values.size() < 2 || !"lnurl".equals(values.get(0))) continue;
+                    String lnurl = NGEUtils.safeString(values.get(1));
+                    if (!lnurl.isEmpty()) {
+                        build.append("&lnurl=").append(URLEncoder.encode(lnurl, StandardCharsets.UTF_8));
+                    }
+                    break;
+                }
+            }
         }
         return NGEUtils.safeURI(build.toString());
     }
@@ -333,7 +354,7 @@ public class LnUrlPay implements LnUrlService {
         map.put("maxSendable", maxSendable);
         map.put("minSendable", minSendable);
         if (allowNostr || nostrPubkey != null) {
-            map.put("allowNostr", allowNostr);
+            map.put("allowsNostr", allowNostr);
         }
         if (nostrPubkey != null) {
             map.put("nostrPubkey", nostrPubkey);
