@@ -156,9 +156,8 @@ public class LnUrlPay implements LnUrlService {
         this.callback = NGEUtils.safeURI(data.get("callback"));
 
         // The standard field takes precedence, including an explicit refusal.
-        this.allowNostr = Boolean.TRUE.equals(
-            data.containsKey("allowsNostr") ? data.get("allowsNostr") : data.get("allowNostr")
-        );
+        this.allowNostr =
+            Boolean.TRUE.equals(data.containsKey("allowsNostr") ? data.get("allowsNostr") : data.get("allowNostr"));
         this.nostrPubkey = NGEUtils.safeString(data.get("nostrPubkey"));
 
         String metaStr = NGEUtils.safeString(data.get("metadata"));

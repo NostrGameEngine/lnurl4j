@@ -45,14 +45,22 @@ import org.ngengine.platform.NGEPlatform;
 public class TestLnUrlPay {
 
     private Map<String, Object> endpoint() {
-        return new LinkedHashMap<>(Map.of(
-            "tag", "payRequest",
-            "minSendable", 1000,
-            "maxSendable", 1000000,
-            "callback", "https://example.com/pay",
-            "metadata", "[[\"text/plain\",\"Fixture\"]]",
-            "nostrPubkey", "04c915daefee38317fa734444acee390a8269fe5810b2241e5e6dd343dfbecc9"
-        ));
+        return new LinkedHashMap<>(
+            Map.of(
+                "tag",
+                "payRequest",
+                "minSendable",
+                1000,
+                "maxSendable",
+                1000000,
+                "callback",
+                "https://example.com/pay",
+                "metadata",
+                "[[\"text/plain\",\"Fixture\"]]",
+                "nostrPubkey",
+                "04c915daefee38317fa734444acee390a8269fe5810b2241e5e6dd343dfbecc9"
+            )
+        );
     }
 
     @Test
@@ -100,9 +108,18 @@ public class TestLnUrlPay {
         Map<String, Object> data = endpoint();
         data.put("allowsNostr", true);
         String lnurl = new LnAddress("index@example.com").toBech32();
-        String request = NGEPlatform.get().toJSON(Map.of(
-            "kind", 9734, "content", "Fixture & +", "tags", List.of(List.of("p", "recipient"), List.of("lnurl", lnurl))
-        ));
+        String request = NGEPlatform
+            .get()
+            .toJSON(
+                Map.of(
+                    "kind",
+                    9734,
+                    "content",
+                    "Fixture & +",
+                    "tags",
+                    List.of(List.of("p", "recipient"), List.of("lnurl", lnurl))
+                )
+            );
         for (String base : List.of("https://example.com/pay", "https://example.com/pay?token=fixture")) {
             data.put("callback", base);
             Map<String, String> params = query(new LnUrlPay(data).getCallback(1000, null, null, request));
