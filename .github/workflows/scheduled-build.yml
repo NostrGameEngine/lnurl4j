@@ -1,0 +1,17 @@
+name: Scheduled Build
+
+on:
+  schedule:
+    - cron: '17 3 * * 0'
+  workflow_dispatch:
+
+# Keep the inactivity timeout for scheduled workflows separate from release triggers.
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      pages: write
+    secrets: inherit
